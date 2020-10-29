@@ -1,0 +1,289 @@
+openapi: 3.0.0
+info:
+  title: Simple Pokemon API
+  description: This is a simple API that retrievern information about pokemons
+  contact:
+    email: ypardo@modyo.com
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.0
+servers:
+- url: https://virtserver.swaggerhub.com/ypardo/pokeapi2/1.0.0
+  description: SwaggerHub API Auto Mocking
+tags:
+- name: developers
+  description: Operations available to regular developers
+paths:
+  /pokemon:
+    get:
+      tags:
+      - developers
+      summary: get a list of all pokemons paginated 20 by 20
+      description: |
+        Get all pokemons paginated 20 by 20 only calling this path with or without arguments
+      operationId: get_all_pokemon
+      parameters:
+      - name: offset
+        in: query
+        description: Number where pagination starts
+        required: false
+        style: form
+        explode: true
+        schema:
+          minimum: 0
+          type: integer
+          format: int32
+      - name: limit
+        in: query
+        description: number of records to skip for pagination
+        required: false
+        style: form
+        explode: true
+        schema:
+          minimum: 0
+          type: integer
+          format: int32
+      responses:
+        "200":
+          description: search results matching criteria
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Pokemon'
+                x-content-type: application/json
+        "400":
+          description: bad input parameter
+      x-openapi-router-controller: swagger_server.controllers.developers_controller
+  /pokemon/{pokemonId}:
+    get:
+      tags:
+      - developers
+      summary: get a specific pokemon by id
+      description: get a pokemon using their unique id
+      operationId: get_pokemon
+      parameters:
+      - name: pokemonId
+        in: path
+        description: it's the pokemon id
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+      responses:
+        "200":
+          description: item found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pokemon'
+        "404":
+          description: pokemon not found
+      x-openapi-router-controller: swagger_server.controllers.developers_controller
+  /user:
+    get:
+      tags:
+      - developers
+      summary: get a list of registered users
+      description: get all users with basic information
+      operationId: get_all_users
+      responses:
+        "200":
+          description: search results matching criteria
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+                x-content-type: application/json
+        "400":
+          description: bad input parameter
+      x-openapi-router-controller: swagger_server.controllers.developers_controller
+    post:
+      tags:
+      - developers
+      summary: create a new user
+      description: create a new user
+      operationId: create_user
+      responses:
+        "201":
+          description: new user created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+      x-openapi-router-controller: swagger_server.controllers.developers_controller
+  /user/{userId}:
+    get:
+      tags:
+      - developers
+      summary: get an user with their pokemons
+      description: get an specific user with their catched pokemons
+      operationId: get_user
+      parameters:
+      - name: userId
+        in: path
+        description: it's the user id
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: user found successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDetail'
+        "404":
+          description: user not found
+      x-openapi-router-controller: swagger_server.controllers.developers_controller
+  /user/{userId}/pokemon/{pokemonId}:
+    get:
+      tags:
+      - developers
+      summary: get a relationship between an user and a pokemon
+      description: get all information related in the relationship between a pokemon
+        and a user
+      operationId: get_user_and_pokemon_relationship
+      parameters:
+      - name: userId
+        in: path
+        description: user id
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: pokemonId
+        in: path
+        description: pokemon id
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+      responses:
+        "200":
+          description: relationship found successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserPokemonDetail'
+        "404":
+          description: relationship not found
+      x-openapi-router-controller: swagger_server.controllers.developers_controller
+    post:
+      tags:
+      - developers
+      summary: create a relationship between a user and a pokemon
+      description: create a relationship between a user and a pokemon
+      operationId: create_user_and_pokemon_relationship
+      parameters:
+      - name: userId
+        in: path
+        description: user id
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: pokemonId
+        in: path
+        description: pokemon id
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+      responses:
+        "200":
+          description: relationship created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserPokemonDetail'
+      x-openapi-router-controller: swagger_server.controllers.developers_controller
+components:
+  schemas:
+    Pokemon:
+      required:
+      - name
+      properties:
+        name:
+          type: string
+          example: bulbasaur
+        url:
+          type: string
+          example: https://pokeapi.co/api/v2/pokemon/1/
+        pokemonId:
+          type: integer
+          example: 1
+      example:
+        pokemonId: 1
+        name: bulbasaur
+        url: https://pokeapi.co/api/v2/pokemon/1/
+    User:
+      required:
+      - name
+      properties:
+        name:
+          type: string
+          example: yojan
+        userId:
+          type: string
+          example: 123e4567-e89b-12d3-a456-426614174000
+      example:
+        name: yojan
+        userId: 123e4567-e89b-12d3-a456-426614174000
+    UserDetail:
+      required:
+      - userId
+      properties:
+        name:
+          type: string
+          example: yojan
+        userId:
+          type: string
+          example: 123e4567-e89b-12d3-a456-426614174000
+        pokemons:
+          type: array
+          items:
+            $ref: '#/components/schemas/Pokemon'
+      example:
+        pokemons:
+        - pokemonId: 1
+          name: bulbasaur
+          url: https://pokeapi.co/api/v2/pokemon/1/
+        - pokemonId: 1
+          name: bulbasaur
+          url: https://pokeapi.co/api/v2/pokemon/1/
+        name: yojan
+        userId: 123e4567-e89b-12d3-a456-426614174000
+    UserPokemonDetail:
+      required:
+      - userAndPokemonRelationshipId
+      properties:
+        userAndPokemonRelationshipId:
+          type: string
+          example: 123e4567-e89b-12d3-a4f6-42661417e000
+        userId:
+          type: string
+          example: 123e4567-e89b-12d3-a456-426614174000
+        pokemonId:
+          type: integer
+          example: 1
+        createdAt:
+          type: string
+          example: 20/10/2020
+      example:
+        createdAt: 20/10/2020
+        pokemonId: 1
+        userAndPokemonRelationshipId: 123e4567-e89b-12d3-a4f6-42661417e000
+        userId: 123e4567-e89b-12d3-a456-426614174000
+
